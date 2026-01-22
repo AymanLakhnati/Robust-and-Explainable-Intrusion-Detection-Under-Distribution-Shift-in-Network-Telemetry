@@ -1,0 +1,64 @@
+project:
+  name: robust_ids_shift_experiment
+  random_seed: 42
+
+data:
+  csv_path: data/synthetic_dataset.csv
+  label_col: label
+  domain_col: day
+  timestamp_col: timestamp
+  positive_label: 1
+  test_last_n_domains: 15
+  recent_val:
+    n_domains: 2
+
+preprocess:
+  drop_cols: []
+  categorical_max_unique: 50
+  scale_numeric: true
+
+models:
+  logistic_regression:
+    C: 1.0
+    max_iter: 2000
+    class_weight: balanced
+  random_forest:
+    n_estimators: 400
+    max_depth: null
+    min_samples_leaf: 2
+    class_weight: balanced_subsample
+
+robustness:
+  drift:
+    enabled: true
+    method: both
+    psi_bins: 10
+    psi_threshold: 0.2
+    ks_alpha: 0.01
+    alarm_min_fraction_features: 0.1
+  recalibration:
+    enabled: true
+    method: platt
+    bins_for_reliability: 10
+  conformal:
+    enabled: true
+    alpha: 0.1
+    abstain_if_ambiguous: true
+
+eval:
+  positive_label: 1
+  recall_at_fpr: 0.01
+  low_fpr_targets: [1e-3, 1e-4]
+  low_fpr_pauc_max: 1e-2
+
+explain:
+  enabled: true
+  top_k_features: 20
+  shap_enabled: true
+  stable_day: "2024-01-20"
+  drift_day: "2024-02-05"
+
+paths:
+  artifacts_dir: artifacts
+  results_dir: results
+
